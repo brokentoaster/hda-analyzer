@@ -249,7 +249,7 @@ mailing list - http://www.alsa-project.org .
 Bugs, ideas, comments about this program should be sent to alsa-devel
 mailing list, too.
 """
-        buffer = Gtk.TextBuffer(None)
+        buffer = Gtk.TextBuffer()
         iter = buffer.get_iter_at_offset(0)
         buffer.insert(iter, str[:-1])
         text_view.set_buffer(buffer)
@@ -295,7 +295,7 @@ mailing list, too.
         str = do_diff1(self.codec, DIFF_TREE[self.card][self.codec.device])
         if str == "":
             str = "No changes"
-        buffer = Gtk.TextBuffer(None)
+        buffer = Gtk.TextBuffer()
         iter = buffer.get_iter_at_offset(0)
         buffer.insert(iter, str[:-1])
         text_view.set_buffer(buffer)
@@ -325,7 +325,7 @@ mailing list, too.
         fontName = get_fixed_font()
         text_view.modify_font(fontName)
         str = exporter.text(self.codec)
-        buffer = Gtk.TextBuffer(None)
+        buffer = Gtk.TextBuffer()
         iter = buffer.get_iter_at_offset(0)
         buffer.insert(iter, str[:-1])
         text_view.set_buffer(buffer)
