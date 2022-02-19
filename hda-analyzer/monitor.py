@@ -12,9 +12,9 @@
 #   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #   GNU General Public License for more details.
 
-import gobject
-import gtk
-import pango
+from gi.repository import GObject
+from gi.repository import Gtk
+from gi.repository import Pango
 from errno import EAGAIN
 from subprocess import Popen, PIPE, STDOUT
 from fcntl import fcntl, F_SETFL, F_GETFL
@@ -36,7 +36,7 @@ def set_fd_nonblocking(fd):
    flags = fcntl(fd, F_GETFL)
    fcntl(fd, F_SETFL, flags | os.O_NONBLOCK)
 
-class Monitor(gtk.Window):
+class Monitor(Gtk.Window):
 
   channel = 0
   channels = 0
@@ -47,7 +47,7 @@ class Monitor(gtk.Window):
     self.device = device
     if not self.device:
       self.device = 'plughw:0'
-    gtk.Window.__init__(self)
+    GObject.GObject.__init__(self)
     try:
       self.set_screen(parent.get_screen())
     except AttributeError:
@@ -56,42 +56,42 @@ class Monitor(gtk.Window):
     self.set_default_size(600, 400)
     self.set_title(self.__class__.__name__)
     self.set_border_width(10)
-    vbox = gtk.VBox(False, 0)
-    text_view = gtk.TextView()
-    fontName = pango.FontDescription("Misc Fixed,Courier 10")
+    vbox = Gtk.VBox(False, 0)
+    text_view = Gtk.TextView()
+    fontName = Pango.FontDescription("Misc Fixed,Courier 10")
     text_view.modify_font(fontName)
     text_view.set_border_width(4)
     text_view.set_size_request(580, 350)
-    buffer = gtk.TextBuffer(None)
+    buffer = Gtk.TextBuffer(None)
     self.info_buffer = buffer
     iter = buffer.get_iter_at_offset(0)
     buffer.insert(iter, 'Please, select channel to play or number channels to record...')
     text_view.set_buffer(buffer)
     text_view.set_editable(False)
     text_view.set_cursor_visible(False)
-    vbox.pack_start(text_view)
-    self.statusbar = gtk.Statusbar()
+    vbox.pack_start(text_view, True, True, 0)
+    self.statusbar = Gtk.Statusbar()
     vbox.pack_start(self.statusbar, True, False)
-    separator = gtk.HSeparator()
-    vbox.pack_start(separator, expand=False)
-    frame = gtk.Frame('Playback')
+    separator = Gtk.HSeparator()
+    vbox.pack_start(separator, False, True, 0)
+    frame = Gtk.Frame('Playback')
     frame.set_border_width(4)
-    hbox = gtk.HBox(False, 0)
+    hbox = Gtk.HBox(False, 0)
     hbox.set_border_width(4)
     idx = 0
     for name in CHANNELS:
-      button = gtk.Button(name)
+      button = Gtk.Button(name)
       button.connect("clicked", self.__channel_change, idx)
       hbox.pack_start(button, False, False)
       idx += 1
     frame.add(hbox)
     vbox.pack_start(frame, False, False)
-    frame = gtk.Frame('Capture')
+    frame = Gtk.Frame('Capture')
     frame.set_border_width(4)
-    hbox = gtk.HBox(False, 0)
+    hbox = Gtk.HBox(False, 0)
     hbox.set_border_width(4)
     for idx in [2, 4, 6, 8]:
-      button = gtk.Button("%s channels" % idx)
+      button = Gtk.Button("%s channels" % idx)
       button.connect("clicked", self.__channels_change, idx)
       hbox.pack_start(button, False, False)
       idx += 1
@@ -106,7 +106,7 @@ class Monitor(gtk.Window):
   def __destroy(self, e):
     self.generate_cleanup()
     self.record_cleanup()
-    gtk.main_quit()
+    Gtk.main_quit()
 
   def __channel_change(self, button, idx):
     if self.channel != idx or self.generate_p == None:
@@ -157,9 +157,9 @@ class Monitor(gtk.Window):
     for fd in [p.stdout.fileno(), p.stderr.fileno()]:
       set_fd_nonblocking(fd)
     self.generate_p = p
-    self.generate_stdout_id = gobject.io_add_watch(p.stdout, gobject.IO_IN|gobject.IO_HUP|gobject.IO_NVAL, self.generate_io_stdout)
-    self.generate_stderr_id = gobject.io_add_watch(p.stderr, gobject.IO_IN|gobject.IO_HUP|gobject.IO_NVAL, self.generate_io_stderr)
-    self.generate_timeout_id = gobject.timeout_add(5000, self.generate_timeout)
+    self.generate_stdout_id = GObject.io_add_watch(p.stdout, GObject.IO_IN|GObject.IO_HUP|GObject.IO_NVAL, self.generate_io_stdout)
+    self.generate_stderr_id = GObject.io_add_watch(p.stderr, GObject.IO_IN|GObject.IO_HUP|GObject.IO_NVAL, self.generate_io_stderr)
+    self.generate_timeout_id = GObject.timeout_add(5000, self.generate_timeout)
     self.generate_stdout = ''
     self.generate_stderr = ''
 
@@ -172,9 +172,9 @@ class Monitor(gtk.Window):
       except:
       	pass
     self.generate_p.wait()
-    gobject.source_remove(self.generate_timeout_id)
-    gobject.source_remove(self.generate_stdout_id)
-    gobject.source_remove(self.generate_stderr_id)
+    GObject.source_remove(self.generate_timeout_id)
+    GObject.source_remove(self.generate_stdout_id)
+    GObject.source_remove(self.generate_stderr_id)
     del self.generate_p
     self.generate_p = None
 
@@ -190,13 +190,13 @@ class Monitor(gtk.Window):
     return True
 
   def generate_io_stdout(self, source, condition):
-    if condition & gobject.IO_IN:
+    if condition & GObject.IO_IN:
       self.generate_stdout += source.read(1024)
       self.set_text(' '.join(self.cmd) + '\n\n' + self.generate_stdout)
       return True
 
   def generate_io_stderr(self, source, condition):
-    if condition & gobject.IO_IN:
+    if condition & GObject.IO_IN:
       self.generate_stderr += source.read(1024)
       return True
 
@@ -211,9 +211,9 @@ class Monitor(gtk.Window):
     for fd in [p.stdout.fileno(), p.stderr.fileno()]:
       set_fd_nonblocking(fd)
     self.record_p = p
-    self.record_stdout_id = gobject.io_add_watch(p.stdout, gobject.IO_IN|gobject.IO_HUP|gobject.IO_NVAL, self.record_io_stdout)
-    self.record_stderr_id = gobject.io_add_watch(p.stderr, gobject.IO_IN|gobject.IO_HUP|gobject.IO_NVAL, self.record_io_stderr)
-    self.record_timeout_id = gobject.timeout_add(5000, self.record_timeout)
+    self.record_stdout_id = GObject.io_add_watch(p.stdout, GObject.IO_IN|GObject.IO_HUP|GObject.IO_NVAL, self.record_io_stdout)
+    self.record_stderr_id = GObject.io_add_watch(p.stderr, GObject.IO_IN|GObject.IO_HUP|GObject.IO_NVAL, self.record_io_stderr)
+    self.record_timeout_id = GObject.timeout_add(5000, self.record_timeout)
     self.record_stdout = ''
     self.record_stderr = ''
     self.record_count = 0
@@ -229,9 +229,9 @@ class Monitor(gtk.Window):
       except:
       	pass
     self.record_p.wait()
-    gobject.source_remove(self.record_timeout_id)
-    gobject.source_remove(self.record_stdout_id)
-    gobject.source_remove(self.record_stderr_id)
+    GObject.source_remove(self.record_timeout_id)
+    GObject.source_remove(self.record_stdout_id)
+    GObject.source_remove(self.record_stderr_id)
     del self.record_p
     self.record_p = None
 
@@ -247,7 +247,7 @@ class Monitor(gtk.Window):
     return True
 
   def record_io_stdout(self, source, condition):
-    if condition & gobject.IO_IN:
+    if condition & GObject.IO_IN:
       while 1:
       	try:
 	  data = source.read(128)
@@ -274,7 +274,7 @@ class Monitor(gtk.Window):
       return True
 
   def record_io_stderr(self, source, condition):
-    if condition & gobject.IO_IN:
+    if condition & GObject.IO_IN:
       self.record_stderr += source.read(1024)
       return True
 
@@ -290,7 +290,7 @@ class Monitor(gtk.Window):
 
 def main():
   Monitor()
-  gtk.main()
+  Gtk.main()
 
 if __name__ == '__main__':
   main()

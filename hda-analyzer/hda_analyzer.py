@@ -33,9 +33,9 @@ import gi
 
 gi.require_version("Gtk", "3.0")
 gi.require_version("PangoCairo", "1.0")
-# import gobject
-# import gtk
-# import pango
+# from gi.repository import GObject
+# from gi.repository import Gtk
+# from gi.repository import Pango
 from gi.repository import Gtk, Gdk, cairo, Pango, PangoCairo
 from gi.repository import GObject as gobject
 
@@ -155,63 +155,63 @@ def save_to_file(filename, txt, mode=None):
 (TITLE_COLUMN, CARD_COLUMN, CODEC_COLUMN, NODE_COLUMN, ITALIC_COLUMN) = list(range(5))
 
 
-class HDAAnalyzer(gtk.Window):
+class HDAAnalyzer(Gtk.Window):
     info_buffer = None
     node_window = None
     codec = None
     node = None
 
     def __init__(self):
-        gtk.Window.__init__(self)
+        GObject.GObject.__init__(self)
         self.connect("destroy", self.__destroy)
         self.set_default_size(800, 400)
         self.set_title(self.__class__.__name__)
         self.set_border_width(10)
 
-        self.tooltips = gtk.Tooltips()
+        self.tooltips = Gtk.Tooltips()
 
-        hbox = gtk.HBox(False, 3)
+        hbox = Gtk.HBox(False, 3)
         self.add(hbox)
 
-        vbox = gtk.VBox(False, 0)
-        scrolled_window = gtk.ScrolledWindow()
-        scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-        scrolled_window.set_shadow_type(gtk.SHADOW_IN)
+        vbox = Gtk.VBox(False, 0)
+        scrolled_window = Gtk.ScrolledWindow()
+        scrolled_window.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
+        scrolled_window.set_shadow_type(Gtk.ShadowType.IN)
         treeview = self.__create_treeview()
         treeview.set_size_request(250, 600)
         scrolled_window.add(treeview)
-        vbox.pack_start(scrolled_window)
-        hbox1 = gtk.HBox(False, 0)
-        button = gtk.Button("About")
+        vbox.pack_start(scrolled_window, True, True, 0)
+        hbox1 = Gtk.HBox(False, 0)
+        button = Gtk.Button("About")
         button.connect("clicked", self.__about_clicked)
         self.tooltips.set_tip(button, "README! Show the purpose of this program.")
-        hbox1.pack_start(button)
-        button = gtk.Button("Revert")
+        hbox1.pack_start(button, True, True, 0)
+        button = Gtk.Button("Revert")
         button.connect("clicked", self.__revert_clicked)
         self.tooltips.set_tip(button, "Revert settings for selected codec.")
-        hbox1.pack_start(button)
-        button = gtk.Button("Diff")
+        hbox1.pack_start(button, True, True, 0)
+        button = Gtk.Button("Diff")
         button.connect("clicked", self.__diff_clicked)
         self.tooltips.set_tip(button, "Show settings diff for selected codec.")
-        hbox1.pack_start(button)
-        button = gtk.Button("Exp")
+        hbox1.pack_start(button, True, True, 0)
+        button = Gtk.Button("Exp")
         button.connect("clicked", self.__export_clicked)
         self.tooltips.set_tip(
             button,
             "Export settings differences for selected codec.\nGenerates a python script.",
         )
-        hbox1.pack_start(button)
-        button = gtk.Button("Graph")
+        hbox1.pack_start(button, True, True, 0)
+        button = Gtk.Button("Graph")
         button.connect("clicked", self.__graph_clicked)
         self.tooltips.set_tip(button, "Show graph for selected codec.")
-        hbox1.pack_start(button)
+        hbox1.pack_start(button, True, True, 0)
         vbox.pack_start(hbox1, False, False)
         hbox.pack_start(vbox, False, False)
 
-        self.notebook = gtk.Notebook()
-        hbox.pack_start(self.notebook, expand=True)
+        self.notebook = Gtk.Notebook()
+        hbox.pack_start(self.notebook, True, True, 0)
 
-        self.node_window = gtk.Table()
+        self.node_window = Gtk.Table()
         self._new_notebook_page(self.node_window, "_Node editor")
 
         scrolled_window, self.info_buffer = self.__create_text(self.__dump_visibility)
@@ -224,24 +224,24 @@ class HDAAnalyzer(gtk.Window):
         TRACKER.close(self)
 
     def simple_dialog(self, type, msg):
-        dialog = gtk.MessageDialog(
+        dialog = Gtk.MessageDialog(
             self,
-            gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+            Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
             type,
-            gtk.BUTTONS_OK,
+            Gtk.ButtonsType.OK,
             msg,
         )
         dialog.run()
         dialog.destroy()
 
     def __about_clicked(self, button):
-        dialog = gtk.Dialog(
+        dialog = Gtk.Dialog(
             "About",
             self,
-            gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-            (gtk.STOCK_OK, gtk.RESPONSE_OK),
+            Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
+            (Gtk.STOCK_OK, Gtk.ResponseType.OK),
         )
-        text_view = gtk.TextView()
+        text_view = Gtk.TextView()
         text_view.set_border_width(4)
         str = """\
 HDA Analyzer
@@ -258,7 +258,7 @@ mailing list - http://www.alsa-project.org .
 Bugs, ideas, comments about this program should be sent to alsa-devel
 mailing list, too.
 """
-        buffer = gtk.TextBuffer(None)
+        buffer = Gtk.TextBuffer(None)
         iter = buffer.get_iter_at_offset(0)
         buffer.insert(iter, str[:-1])
         text_view.set_buffer(buffer)
@@ -272,7 +272,7 @@ mailing list, too.
     def __revert_clicked(self, button):
         if not self.codec:
             msg = "Please, select a codec in left codec/node tree."
-            type = gtk.MESSAGE_WARNING
+            type = Gtk.MessageType.WARNING
         else:
             self.codec.revert()
             self.__refresh()
@@ -281,30 +281,30 @@ mailing list, too.
                 self.codec.device,
                 self.codec.name,
             )
-            type = gtk.MESSAGE_INFO
+            type = Gtk.MessageType.INFO
 
         self.simple_dialog(type, msg)
 
     def __diff_clicked(self, button):
         if not self.codec:
             self.simple_dialog(
-                gtk.MESSAGE_WARNING, "Please, select a codec in left codec/node tree."
+                Gtk.MessageType.WARNING, "Please, select a codec in left codec/node tree."
             )
             return
-        dialog = gtk.Dialog(
+        dialog = Gtk.Dialog(
             "Diff",
             self,
-            gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-            (gtk.STOCK_OK, gtk.RESPONSE_OK),
+            Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
+            (Gtk.STOCK_OK, Gtk.ResponseType.OK),
         )
-        text_view = gtk.TextView()
+        text_view = Gtk.TextView()
         text_view.set_border_width(4)
         fontName = get_fixed_font()
         text_view.modify_font(fontName)
         str = do_diff1(self.codec, DIFF_TREE[self.card][self.codec.device])
         if str == "":
             str = "No changes"
-        buffer = gtk.TextBuffer(None)
+        buffer = Gtk.TextBuffer(None)
         iter = buffer.get_iter_at_offset(0)
         buffer.insert(iter, str[:-1])
         text_view.set_buffer(buffer)
@@ -318,23 +318,23 @@ mailing list, too.
     def __export_clicked(self, button):
         if not self.codec:
             self.simple_dialog(
-                gtk.MESSAGE_WARNING, "Please, select a codec in left codec/node tree."
+                Gtk.MessageType.WARNING, "Please, select a codec in left codec/node tree."
             )
             return
         exporter = HDA_Exporter_pyscript()
         self.codec.export(exporter)
-        dialog = gtk.Dialog(
+        dialog = Gtk.Dialog(
             exporter.title(),
             self,
-            gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-            (gtk.STOCK_OK, gtk.RESPONSE_OK, gtk.STOCK_SAVE_AS, gtk.RESPONSE_YES),
+            Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
+            (Gtk.STOCK_OK, Gtk.ResponseType.OK, Gtk.STOCK_SAVE_AS, Gtk.ResponseType.YES),
         )
-        text_view = gtk.TextView()
+        text_view = Gtk.TextView()
         text_view.set_border_width(4)
         fontName = get_fixed_font()
         text_view.modify_font(fontName)
         str = exporter.text(self.codec)
-        buffer = gtk.TextBuffer(None)
+        buffer = Gtk.TextBuffer(None)
         iter = buffer.get_iter_at_offset(0)
         buffer.insert(iter, str[:-1])
         text_view.set_buffer(buffer)
@@ -344,41 +344,41 @@ mailing list, too.
         dialog.show_all()
         r = dialog.run()
         dialog.destroy()
-        if r == gtk.RESPONSE_YES:
-            sdialog = gtk.FileChooserDialog(
+        if r == Gtk.ResponseType.YES:
+            sdialog = Gtk.FileChooserDialog(
                 "Save %s as..." % exporter.stitle(),
                 self,
-                gtk.FILE_CHOOSER_ACTION_SAVE,
+                Gtk.FileChooserAction.SAVE,
                 (
-                    gtk.STOCK_CANCEL,
-                    gtk.RESPONSE_CANCEL,
-                    gtk.STOCK_SAVE,
-                    gtk.RESPONSE_OK,
+                    Gtk.STOCK_CANCEL,
+                    Gtk.ResponseType.CANCEL,
+                    Gtk.STOCK_SAVE,
+                    Gtk.ResponseType.OK,
                 ),
             )
-            sdialog.set_default_response(gtk.RESPONSE_OK)
+            sdialog.set_default_response(Gtk.ResponseType.OK)
 
-            filter = gtk.FileFilter()
+            filter = Gtk.FileFilter()
             filter.set_name("Python Scripts")
             filter.add_mime_type("text/x-python")
             filter.add_mime_type("text/x-python-script")
             filter.add_pattern("*.py")
             sdialog.add_filter(filter)
 
-            filter = gtk.FileFilter()
+            filter = Gtk.FileFilter()
             filter.set_name("All files")
             filter.add_pattern("*")
             sdialog.add_filter(filter)
 
             sr = sdialog.run()
-            if sr == gtk.RESPONSE_OK:
+            if sr == Gtk.ResponseType.OK:
                 save_to_file(sdialog.get_filename(), str, 0o755)
             sdialog.destroy()
 
     def __graph_clicked(self, button):
         if not self.codec:
             self.simple_dialog(
-                gtk.MESSAGE_WARNING, "Please, select a codec in left codec/node tree."
+                Gtk.MessageType.WARNING, "Please, select a codec in left codec/node tree."
             )
             return
         create_graph(self.codec)
@@ -449,22 +449,22 @@ mailing list, too.
         self.node_window.show_all()
 
     def _new_notebook_page(self, widget, label):
-        l = gtk.Label("")
+        l = Gtk.Label(label="")
         l.set_text_with_mnemonic(label)
         self.notebook.append_page(widget, l)
 
     def __create_treeview(self):
-        model = gtk.TreeStore(
-            gobject.TYPE_STRING,
-            gobject.TYPE_INT,
-            gobject.TYPE_INT,
-            gobject.TYPE_INT,
-            gobject.TYPE_BOOLEAN,
+        model = Gtk.TreeStore(
+            GObject.TYPE_STRING,
+            GObject.TYPE_INT,
+            GObject.TYPE_INT,
+            GObject.TYPE_INT,
+            GObject.TYPE_BOOLEAN,
         )
 
-        treeview = gtk.TreeView(model)
+        treeview = Gtk.TreeView(model)
         selection = treeview.get_selection()
-        selection.set_mode(gtk.SELECTION_BROWSE)
+        selection.set_mode(Gtk.SelectionMode.BROWSE)
         treeview.set_size_request(200, -1)
 
         for card in CODEC_TREE:
@@ -516,10 +516,10 @@ mailing list, too.
                     )
                     nid += 1
 
-        cell = gtk.CellRendererText()
-        cell.set_property("style", pango.STYLE_ITALIC)
+        cell = Gtk.CellRendererText()
+        cell.set_property("style", Pango.Style.ITALIC)
 
-        column = gtk.TreeViewColumn(
+        column = Gtk.TreeViewColumn(
             "Nodes", cell, text=TITLE_COLUMN, style_set=ITALIC_COLUMN
         )
 
@@ -532,16 +532,16 @@ mailing list, too.
         return treeview
 
     def __create_text(self, callback):
-        scrolled_window = gtk.ScrolledWindow()
-        scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-        scrolled_window.set_shadow_type(gtk.SHADOW_IN)
+        scrolled_window = Gtk.ScrolledWindow()
+        scrolled_window.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
+        scrolled_window.set_shadow_type(Gtk.ShadowType.IN)
 
-        text_view = gtk.TextView()
+        text_view = Gtk.TextView()
         fontName = get_fixed_font()
         text_view.modify_font(fontName)
         scrolled_window.add(text_view)
 
-        buffer = gtk.TextBuffer(None)
+        buffer = Gtk.TextBuffer(None)
         text_view.set_buffer(buffer)
         text_view.set_editable(False)
         text_view.set_cursor_visible(False)
@@ -613,7 +613,7 @@ def main(argv):
                     create_graph(CODEC_TREE[card][codec])
         else:
             HDAAnalyzer()
-        gtk.main()
+        Gtk.main()
     return 1
 
 

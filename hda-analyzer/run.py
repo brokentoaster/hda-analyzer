@@ -11,9 +11,9 @@ FILES = [
 ]
 
 try:
-    import gobject
-    import gtk
-    import pango
+    from gi.repository import GObject
+    from gi.repository import Gtk
+    from gi.repository import Pango
 except:
     print("Please, install pygtk2 or python-gtk package")
 
