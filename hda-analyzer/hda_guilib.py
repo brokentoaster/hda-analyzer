@@ -64,7 +64,7 @@ def do_diff():
       diff += do_diff1(c, DIFF_TREE[card][codec])
   if len(diff) > 0:
     open(DIFF_FILE, "w+").write(diff + '\n')
-    print "Diff was stored to: %s" % DIFF_FILE
+    print("Diff was stored to: %s" % DIFF_FILE)
   return (diff and hw > 0) and True or False
 
 class NodeGui(gtk.ScrolledWindow):
@@ -101,7 +101,7 @@ class NodeGui(gtk.ScrolledWindow):
     if widget != self:
       if self.read_all and self.codec == codec:
         self.read_all()
-    
+
   def hda_node_changed(self, obj, widget, node):
     if widget != self:
       if self.read_all and self.node == node:
@@ -162,20 +162,20 @@ class NodeGui(gtk.ScrolledWindow):
     scrolled_window = gtk.ScrolledWindow()
     scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
     scrolled_window.set_shadow_type(gtk.SHADOW_IN)
-    
+
     text_view = gtk.TextView()
     fontName = get_fixed_font()
     text_view.modify_font(fontName)
     scrolled_window.add(text_view)
-    
+
     buffer = gtk.TextBuffer(None)
     text_view.set_buffer(buffer)
     text_view.set_editable(False)
     text_view.set_cursor_visible(False)
     text_view.connect("visibility-notify-event", callback)
-    
+
     text_view.set_wrap_mode(True)
-    
+
     return scrolled_window, buffer
 
   def __new_text_view(self, text=None):
@@ -277,7 +277,7 @@ class NodeGui(gtk.ScrolledWindow):
     return ctl.get_text_info(idx - ctl.hdactl.amp_idx)
 
   def __build_amps(self, node):
-  
+
     def build_caps(title, caps, vals):
       if caps and caps.cloned:
         title += ' (Global)'
@@ -310,7 +310,7 @@ class NodeGui(gtk.ScrolledWindow):
           if caps.mute:
             checkbutton = gtk.CheckButton('Mute')
             checkbutton.connect("toggled", self.__amp_mute_toggled, (caps, vals, idx))
-	    #checkbutton.set_active(True)
+        #checkbutton.set_active(True)
             self.amp_checkbuttons[caps.dir].append(checkbutton)
             hbox.pack_start(checkbutton, False, False)
           else:
@@ -446,7 +446,7 @@ class NodeGui(gtk.ScrolledWindow):
       str += 'No presence\n'
     frame.add(self.__new_text_view(text=str))
     vbox.pack_start(frame)
-    
+
     frame = gtk.Frame('Widget Control')
     frame.set_border_width(4)
     vbox1 = gtk.VBox(False, 0)
@@ -499,7 +499,7 @@ class NodeGui(gtk.ScrolledWindow):
       try:
         val = int(val)
       except:
-        print "Unknown category value '%s'" % val
+        print("Unknown category value '%s'" % val)
         return
     if node.dig1_set_value('category', val):
       HDA_SIGNAL.emit("hda-node-changed", self, node)
@@ -645,14 +645,14 @@ class NodeGui(gtk.ScrolledWindow):
       a.append((HDA_OUTPUT, node.amp_caps_out, node.amp_vals_out))
     for dir, caps, vals in a:
       for idx in range(len(vals.vals)):
-	val = vals.vals[idx]
-	checkbutton = self.amp_checkbuttons[dir][idx]
-	if checkbutton:
-	  checkbutton.set_active(val & 0x80 and True or False)
-	adj = self.amp_adjs[dir][idx]
-	if adj:
-	  adj.set_value((val & 0x7f) % (caps.nsteps+1))
-	idx += 1
+        val = vals.vals[idx]
+        checkbutton = self.amp_checkbuttons[dir][idx]
+        if checkbutton:
+          checkbutton.set_active(val & 0x80 and True or False)
+        adj = self.amp_adjs[dir][idx]
+        if adj:
+          adj.set_value((val & 0x7f) % (caps.nsteps+1))
+        idx += 1
     if hasattr(self, 'connection_model'):
       for r in self.connection_model:
         r[0] = False
@@ -676,7 +676,7 @@ class NodeGui(gtk.ScrolledWindow):
       vbox.pack_start(self.__build_device(dev), False, False)
     ctrls = node.get_controls()
     if ctrls:
-      node.get_mixercontrols()	# workaround
+      node.get_mixercontrols()  # workaround
       vbox.pack_start(self.__build_controls(ctrls), False, False)
     hbox = gtk.HBox(False, 0)
     hbox.pack_start(self.__build_node_caps(node))
@@ -690,7 +690,7 @@ class NodeGui(gtk.ScrolledWindow):
       vbox.pack_start(self.__build_aud(node), False, False)
     else:
       if not node.wtype_id in ['AUD_MIX', 'BEEP', 'AUD_SEL']:
-        print 'Node type %s has no GUI support' % node.wtype_id
+        print('Node type %s has no GUI support' % node.wtype_id)
     if node.proc_wid:
       vbox.pack_start(self.__build_proc(node), False, False)
 
@@ -727,7 +727,7 @@ class NodeGui(gtk.ScrolledWindow):
     vbox.pack_start(frame, False, False)
 
     return vbox
-    
+
   def __build_codec_amps(self, codec):
 
     def build_caps(title, caps):
@@ -749,7 +749,8 @@ class NodeGui(gtk.ScrolledWindow):
 
     return hbox
 
-  def __gpio_toggled(self, button, (codec, id, idx)):
+  def __gpio_toggled(self, button, xxx_todo_changeme):
+    (codec, id, idx) = xxx_todo_changeme
     if codec.gpio.set(id, idx, button.get_active()):
       HDA_SIGNAL.emit("hda-codec-changed", self, codec)
     button.set_active(codec.gpio.test(id, idx))
@@ -836,22 +837,22 @@ class SimpleProgressDialog(gtk.Dialog):
 
     box.pack_start(gtk.Label(), False, False, 0)
     self.progressbar = gtk.ProgressBar()
-    box.pack_start(self.progressbar, False, False, 0)    
+    box.pack_start(self.progressbar, False, False, 0)
 
   def set_fraction(self, fraction):
     self.progressbar.set_fraction(fraction)
-    while gtk.events_pending():   
+    while gtk.events_pending():
       gtk.main_iteration_do(False)
-                          
+
 class TrackWindows:
 
   def __init__(self):
     self.windows = []
-    
+
   def add(self, win):
     if not win in self.windows:
       self.windows.append(win)
-    
+
   def close(self, win):
     if win in self.windows:
       self.windows.remove(win)
@@ -860,7 +861,7 @@ class TrackWindows:
         gtk.main_quit()
 
   def do_diff(self, widget):
-    if do_diff():	
+    if do_diff():
       dialog = gtk.MessageDialog(widget,
                       gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
                       gtk.MESSAGE_QUESTION, gtk.BUTTONS_YES_NO,
@@ -868,11 +869,11 @@ class TrackWindows:
                       "settings for all HDA codecs?")
       response = dialog.run()
       dialog.destroy()
-    
+
       if response == gtk.RESPONSE_YES:
         for card in CODEC_TREE:
           for codec in CODEC_TREE[card]:
             CODEC_TREE[card][codec].revert()
-        print "Settings for all codecs were reverted..."
+        print("Settings for all codecs were reverted...")
 
 TRACKER = TrackWindows()
