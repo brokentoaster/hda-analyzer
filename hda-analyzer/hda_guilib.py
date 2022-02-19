@@ -12,9 +12,15 @@
 #   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #   GNU General Public License for more details.
 
-import gobject
-import gtk
-import pango
+import gi
+
+gi.require_version("Gtk", "3.0")
+gi.require_version("PangoCairo", "1.0")
+# import gobject
+# import gtk
+# import pango
+from gi.repository import Gtk, Gdk, cairo, Pango, PangoCairo
+from gi.repository import GObject as gobject
 
 from hda_codec import HDACodec, HDA_card_list, \
                       EAPDBTL_BITS, PIN_WIDGET_CONTROL_BITS, \
@@ -653,6 +659,7 @@ class NodeGui(gtk.ScrolledWindow):
         if adj:
           adj.set_value((val & 0x7f) % (caps.nsteps+1))
         idx += 1
+
     if hasattr(self, 'connection_model'):
       for r in self.connection_model:
         r[0] = False
