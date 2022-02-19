@@ -58,16 +58,16 @@ from hda_graph import create_graph
 
 def gethttpfile(url, size=1024 * 1024):
     from urllib.parse import splithost
-    from http.client import HTTP
+    from http.client import HTTPConnection
 
     if not url.startswith("http:"):
         raise ValueError("URL %s" % url)
     host, selector = splithost(url[5:])
-    h = HTTP(host)
+    h = HTTPConnection(host)
     h.putrequest("GET", url)
     h.endheaders()
-    h.getreply()
-    res = h.getfile().read(size)
+    r1 = h.getresponse()
+    res = r1.read()
     h.close()
     return res
 
@@ -75,12 +75,12 @@ def gethttpfile(url, size=1024 * 1024):
 def read_nodes2(card, codec):
     try:
         c = HDACodec(card, codec)
-    except OSError as msg:
-        if msg[0] == 13:
+    except OSError as e:
+        if e.errno == 13:
             print("Codec %i/%i unavailable - permissions..." % (card, codec))
-        elif msg[0] == 16:
+        elif e.errno == 16:
             print("Codec %i/%i is busy..." % (card, codec))
-        elif msg[0] != 2:
+        elif e.errno != 2:
             print("Codec %i/%i access problem (%s)" % repr(msg))
         return
     c.analyze()
@@ -168,7 +168,6 @@ class HDAAnalyzer(Gtk.Window):
         self.set_title(self.__class__.__name__)
         self.set_border_width(10)
 
-        self.tooltips = Gtk.Tooltips()
 
         hbox = Gtk.HBox(False, 3)
         self.add(hbox)
@@ -184,29 +183,21 @@ class HDAAnalyzer(Gtk.Window):
         hbox1 = Gtk.HBox(False, 0)
         button = Gtk.Button("About")
         button.connect("clicked", self.__about_clicked)
-        self.tooltips.set_tip(button, "README! Show the purpose of this program.")
         hbox1.pack_start(button, True, True, 0)
         button = Gtk.Button("Revert")
         button.connect("clicked", self.__revert_clicked)
-        self.tooltips.set_tip(button, "Revert settings for selected codec.")
         hbox1.pack_start(button, True, True, 0)
         button = Gtk.Button("Diff")
         button.connect("clicked", self.__diff_clicked)
-        self.tooltips.set_tip(button, "Show settings diff for selected codec.")
         hbox1.pack_start(button, True, True, 0)
         button = Gtk.Button("Exp")
         button.connect("clicked", self.__export_clicked)
-        self.tooltips.set_tip(
-            button,
-            "Export settings differences for selected codec.\nGenerates a python script.",
-        )
         hbox1.pack_start(button, True, True, 0)
         button = Gtk.Button("Graph")
         button.connect("clicked", self.__graph_clicked)
-        self.tooltips.set_tip(button, "Show graph for selected codec.")
         hbox1.pack_start(button, True, True, 0)
-        vbox.pack_start(hbox1, False, False)
-        hbox.pack_start(vbox, False, False)
+        vbox.pack_start(hbox1, False, False, 0)
+        hbox.pack_start(vbox, False, False, 0 )
 
         self.notebook = Gtk.Notebook()
         hbox.pack_start(self.notebook, True, True, 0)
@@ -264,7 +255,7 @@ mailing list, too.
         text_view.set_buffer(buffer)
         text_view.set_editable(False)
         text_view.set_cursor_visible(False)
-        dialog.vbox.pack_start(text_view, False, False)
+        dialog.vbox.pack_start(text_view, False, False,0)
         dialog.show_all()
         dialog.run()
         dialog.destroy()
@@ -310,7 +301,7 @@ mailing list, too.
         text_view.set_buffer(buffer)
         text_view.set_editable(False)
         text_view.set_cursor_visible(False)
-        dialog.vbox.pack_start(text_view, False, False)
+        dialog.vbox.pack_start(text_view, False, False,0)
         dialog.show_all()
         dialog.run()
         dialog.destroy()
@@ -340,7 +331,7 @@ mailing list, too.
         text_view.set_buffer(buffer)
         text_view.set_editable(False)
         text_view.set_cursor_visible(False)
-        dialog.vbox.pack_start(text_view, False, False)
+        dialog.vbox.pack_start(text_view, False, False,0)
         dialog.show_all()
         r = dialog.run()
         dialog.destroy()
@@ -541,7 +532,7 @@ mailing list, too.
         text_view.modify_font(fontName)
         scrolled_window.add(text_view)
 
-        buffer = Gtk.TextBuffer(None)
+        buffer = Gtk.TextBuffer()
         text_view.set_buffer(buffer)
         text_view.set_editable(False)
         text_view.set_cursor_visible(False)

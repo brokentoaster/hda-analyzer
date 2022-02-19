@@ -71,7 +71,7 @@ class Monitor(Gtk.Window):
     text_view.set_cursor_visible(False)
     vbox.pack_start(text_view, True, True, 0)
     self.statusbar = Gtk.Statusbar()
-    vbox.pack_start(self.statusbar, True, False)
+    vbox.pack_start(self.statusbar, True, False,0)
     separator = Gtk.HSeparator()
     vbox.pack_start(separator, False, True, 0)
     frame = Gtk.Frame('Playback')
@@ -82,10 +82,10 @@ class Monitor(Gtk.Window):
     for name in CHANNELS:
       button = Gtk.Button(name)
       button.connect("clicked", self.__channel_change, idx)
-      hbox.pack_start(button, False, False)
+      hbox.pack_start(button, False, False,0)
       idx += 1
     frame.add(hbox)
-    vbox.pack_start(frame, False, False)
+    vbox.pack_start(frame, False, False,0)
     frame = Gtk.Frame('Capture')
     frame.set_border_width(4)
     hbox = Gtk.HBox(False, 0)
@@ -93,10 +93,10 @@ class Monitor(Gtk.Window):
     for idx in [2, 4, 6, 8]:
       button = Gtk.Button("%s channels" % idx)
       button.connect("clicked", self.__channels_change, idx)
-      hbox.pack_start(button, False, False)
+      hbox.pack_start(button, False, False,0)
       idx += 1
     frame.add(hbox)
-    vbox.pack_start(frame, False, False)
+    vbox.pack_start(frame, False, False,0)
     self.add(vbox)
     self.generate_p = None
     self.record_p = None
@@ -186,7 +186,7 @@ class Monitor(Gtk.Window):
       	self.set_text(' '.join(self.cmd) + '\n\n' + self.generate_stdout)
       self.generate_cleanup()
       self.generate_sound()
-      return False    
+      return False
     return True
 
   def generate_io_stdout(self, source, condition):
@@ -243,7 +243,7 @@ class Monitor(Gtk.Window):
       	self.set_text(' '.join(self.cmd) + '\n\n' + self.record_stdout)
       self.record_cleanup()
       self.record_sound()
-      return False    
+      return False
     return True
 
   def record_io_stdout(self, source, condition):
@@ -258,7 +258,7 @@ class Monitor(Gtk.Window):
 	  raise IOError(e)
 	self.record_data += data
 	self.record_count += len(data)
-	pos = self.record_data.find('\n') 
+	pos = self.record_data.find('\n')
 	if pos >= 0:
 	  line = self.record_data[:pos]
 	  self.record_data = self.record_data[pos+1:]

@@ -1109,14 +1109,14 @@ class HDACard:
             self.fd = ctl_fd = os.open("/dev/snd/controlC%i" % card, os.O_RDONLY)
         else:
             self.fd = os.dup(ctl_fd)
-        info = struct.pack("ii16s16s32s80s16s80s128s", 0, 0, "", "", "", "", "", "", "")
+        info = struct.pack("ii16s16s32s80s16s80s128s", 0, 0, b"", b"", b"", b"", b"", b"", b"")
         res = ioctl(ctl_fd, CTL_IOCTL_CARD_INFO, info)
         a = struct.unpack("ii16s16s32s80s16s80s128s", res)
-        self.id = a[2].replace("\x00", "")
-        self.driver = a[3].replace("\x00", "")
-        self.name = a[4].replace("\x00", "")
-        self.longname = a[5].replace("\x00", "")
-        self.components = a[8].replace("\x00", "")
+        self.id = a[2].replace(b"\x00", b"")
+        self.driver = a[3].replace(b"\x00", b"")
+        self.name = a[4].replace(b"\x00", b"")
+        self.longname = a[5].replace(b"\x00", b"")
+        self.components = a[8].replace(b"\x00", b"")
 
     def __del__(self):
         if not self.fd is None:
@@ -1150,13 +1150,13 @@ class HDACodec:
             self.fd = os.open("/dev/snd/hwC%sD%s" % (card, device), os.O_RDWR)
         else:
             self.fd = os.dup(clonefd)
-        info = struct.pack("Ii64s80si64s", 0, 0, "", "", 0, "")
+        info = struct.pack("Ii64s80si64s", 0, 0, b"", b"", 0, b"")
         res = ioctl(self.fd, IOCTL_INFO, info)
         name = struct.unpack("Ii64s80si64s", res)[3]
-        if not name.startswith("HDA Codec"):
+        if not name.startswith(b"HDA Codec"):
             raise IOError("unknown HDA hwdep interface")
         res = ioctl(self.fd, IOCTL_PVERSION, struct.pack("I", 0))
-        self.version = struct.unpack("I", res)
+        self.version = int(struct.unpack("I", res)[0])
         if self.version < 0x00010000:  # 1.0.0
             raise IOError("unknown HDA hwdep version")
         self.mixer = AlsaMixer(self.card, ctl_fd=ctl_fd)
@@ -1336,7 +1336,7 @@ class HDACodec:
         self.gpio = HDAGPIO(self, self.afg)
 
         nodes_count, nid = self.get_sub_nodes(self.afg)
-        self.base_nid = nid
+        self.base_nid = int(nid)
         for i in range(nodes_count):
             self.nodes[nid] = HDANode(self, nid)
             nid += 1
@@ -1475,7 +1475,7 @@ class HDACodec:
         str += "Default Amp-Out caps: "
         str += print_amp_caps(self.amp_caps_out)
 
-        if self.base_nid == 0 or self.nodes < 0:
+        if self.base_nid == 0 or len(self.nodes) < 0:
             str += "Invalid AFG subtree\n"
             return str
 
@@ -2049,7 +2049,7 @@ IOCTL_VERB_WRITE = __ioctl_val(0xc0084811)
 
 def set(nid, verb, param):
   verb = (nid << 24) | (verb << 8) | param
-  res = ioctl(FD, IOCTL_VERB_WRITE, struct.pack('II', verb, 0))  
+  res = ioctl(FD, IOCTL_VERB_WRITE, struct.pack('II', verb, 0))
 
 FD = os.open("%s", os.O_RDONLY)
 info = struct.pack('Ii64s80si64s', 0, 0, '', '', 0, '')
@@ -2084,13 +2084,13 @@ def HDA_card_list():
             except OSError as msg:
                 continue
             info = struct.pack(
-                "ii16s16s32s80s16s80s128s", 0, 0, "", "", "", "", "", "", ""
+                "ii16s16s32s80s16s80s128s", 0, 0, b"", b"", b"", b"", b"", b"", b""
             )
             res = ioctl(fd, CTL_IOCTL_CARD_INFO, info)
             a = struct.unpack("ii16s16s32s80s16s80s128s", res)
             card = a[0]
-            components = a[8].replace("\x00", "")
-            if components.find("HDA:") >= 0:
+            components = a[8].replace(b"\x00", b"")
+            if components.find(b"HDA:") >= 0:
                 result.append(HDACard(card, ctl_fd=fd))
             os.close(fd)
     return result
