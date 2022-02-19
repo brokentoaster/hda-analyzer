@@ -200,7 +200,8 @@ class NodeGui(Gtk.ScrolledWindow):
     return text_view
 
   def __build_node_caps(self, node):
-    frame = Gtk.Frame() # 'Node Caps'
+    frame = Gtk.Frame()
+    frame.set_label( 'Node Caps')
     frame.set_border_width(4)
     if len(node.wcaps_list) == 0:
       return frame
@@ -223,7 +224,8 @@ class NodeGui(Gtk.ScrolledWindow):
       idx += 1
 
   def __build_connection_list(self, node):
-    frame = Gtk.Frame() # 'Connection List'
+    frame = Gtk.Frame()
+    frame.set_label( 'Connection List')
     frame.set_border_width(4)
     sw = Gtk.ScrolledWindow()
     #sw.set_shadow_type(Gtk.ShadowType.ETCHED_IN)
@@ -286,7 +288,8 @@ class NodeGui(Gtk.ScrolledWindow):
     def build_caps(title, caps, vals):
       if caps and caps.cloned:
         title += ' (Global)'
-      frame = Gtk.Frame() # title
+      frame = Gtk.Frame()
+      frame.set_label( title)
       frame.set_border_width(4)
       vbox = Gtk.VBox(False, 0)
       if caps:
@@ -322,7 +325,8 @@ class NodeGui(Gtk.ScrolledWindow):
             self.amp_checkbuttons[caps.dir].append(None)
           if caps.stepsize > 0:
             adj = Gtk.Adjustment((val & 0x7f) % (caps.nsteps+1), 0.0, caps.nsteps+1, 1.0, 1.0, 1.0)
-            scale = Gtk.HScale(adj)
+            scale = Gtk.HScale()
+            scale.new(adj)
             scale.set_digits(0)
             scale.set_value_pos(Gtk.PositionType.RIGHT)
             adj.connect("value_changed", self.__amp_value_changed, (caps, vals, idx))
@@ -349,7 +353,8 @@ class NodeGui(Gtk.ScrolledWindow):
                   hbox.pack_start(Gtk.VSeparator(), False, False,0)
                   sep = True
                 adj = Gtk.Adjustment(0, ctl.min, ctl.max, ctl.step, ctl.step, ctl.step)
-                scale = Gtk.HScale(adj)
+                scale = Gtk.HScale()
+                scale.new(adj)
                 scale.set_digits(0)
                 scale.set_value_pos(Gtk.PositionType.RIGHT)
                 adj.connect("value_changed", self.__ctl_value_changed, (ctl, idx))
@@ -414,7 +419,8 @@ class NodeGui(Gtk.ScrolledWindow):
     if node.pincap or node.pincap_vref or node.pincap_eapdbtl:
       vbox = Gtk.VBox(False, 0)
       if node.pincap or node.pincap_vref:
-        frame = Gtk.Frame() # 'PIN Caps'
+        frame = Gtk.Frame()
+        frame.set_label( 'PIN Caps')
         frame.set_border_width(4)
         str = ''
         for i in node.pincap:
@@ -424,7 +430,8 @@ class NodeGui(Gtk.ScrolledWindow):
         frame.add(self.__new_text_view(text=str))
         vbox.pack_start(frame, True, True, 0)
       if 'EAPD' in node.pincap:
-        frame = Gtk.Frame() # 'EAPD'
+        frame = Gtk.Frame()
+        frame.set_label( 'EAPD')
         frame.set_border_width(4)
         vbox1 = Gtk.VBox(False, 0)
         self.pincap_eapdbtls_checkbuttons = []
@@ -439,7 +446,8 @@ class NodeGui(Gtk.ScrolledWindow):
 
     vbox = Gtk.VBox(False, 0)
 
-    frame = Gtk.Frame() # 'Config Default'
+    frame = Gtk.Frame()
+    frame.set_label( 'Config Default')
     frame.set_border_width(4)
     str =  'Jack connection: %s\n' % node.jack_conn_name
     str += 'Jack type:       %s\n' % node.jack_type_name
@@ -452,7 +460,8 @@ class NodeGui(Gtk.ScrolledWindow):
     frame.add(self.__new_text_view(text=str))
     vbox.pack_start(frame, True, True, 0)
 
-    frame = Gtk.Frame() # 'Widget Control'
+    frame = Gtk.Frame()
+    frame.set_label( 'Widget Control')
     frame.set_border_width(4)
     vbox1 = Gtk.VBox(False, 0)
     self.pin_checkbuttons = []
@@ -513,7 +522,8 @@ class NodeGui(Gtk.ScrolledWindow):
   def __build_aud(self, node):
     vbox = Gtk.VBox(False, 0)
 
-    frame = Gtk.Frame() # 'Converter'
+    frame = Gtk.Frame()
+    frame.set_label( 'Converter')
     frame.set_border_width(4)
     str = 'Audio Stream:\t%s\n' % node.aud_stream
     str += 'Audio Channel:\t%s\n' % node.aud_channel
@@ -534,10 +544,12 @@ class NodeGui(Gtk.ScrolledWindow):
 
     if not node.sdi_select is None:
       hbox1 = Gtk.HBox(False, 0)
-      frame = Gtk.Frame() # 'SDI Select'
+      frame = Gtk.Frame()
+      frame.set_label( 'SDI Select')
       adj = Gtk.Adjustment(node.sdi_select, 0.0, 16.0, 1.0, 1.0, 1.0)
       self.sdi_select_adj = adj
-      scale = Gtk.HScale(adj)
+      scale = Gtk.HScale()
+      scale.new(adj)
       scale.set_digits(0)
       scale.set_value_pos(Gtk.PositionType.LEFT)
       scale.set_size_request(200, 16)
@@ -548,7 +560,8 @@ class NodeGui(Gtk.ScrolledWindow):
 
     if node.digital:
       hbox1 = Gtk.HBox(False, 0)
-      frame = Gtk.Frame() # 'Digital Converter'
+      frame = Gtk.Frame()
+      frame.set_label( 'Digital Converter')
       vbox1 = Gtk.VBox(False, 0)
       self.digital_checkbuttons = []
       for name in DIG1_BITS:
@@ -558,7 +571,8 @@ class NodeGui(Gtk.ScrolledWindow):
         vbox1.pack_start(checkbutton, False, False,0)
       frame.add(vbox1)
       hbox1.pack_start(frame, True, True, 0)
-      frame = Gtk.Frame() # 'Digital Converter Category'
+      frame = Gtk.Frame()
+      frame.set_label( 'Digital Converter Category')
       entry = Gtk.Entry()
       self.dig_category_entry = entry
       entry.set_width_chars(4)
@@ -571,7 +585,8 @@ class NodeGui(Gtk.ScrolledWindow):
 
   def __build_device(self, device):
     vbox = Gtk.VBox(False, 0)
-    frame = Gtk.Frame() # 'Device'
+    frame = Gtk.Frame()
+    frame.set_label( 'Device')
     frame.set_border_width(4)
     hbox = Gtk.HBox(False, 0)
     s = 'name=' + str(device.name) + ', type=' + \
@@ -584,7 +599,8 @@ class NodeGui(Gtk.ScrolledWindow):
 
   def __build_controls(self, ctrls):
     vbox = Gtk.VBox(False, 0)
-    frame = Gtk.Frame() # 'Controls'
+    frame = Gtk.Frame()
+    frame.set_label( 'Controls')
     frame.set_border_width(4)
     vbox1 = Gtk.VBox(False, 0)
     for ctrl in ctrls:
@@ -607,7 +623,8 @@ class NodeGui(Gtk.ScrolledWindow):
     return vbox
 
   def __build_proc(self, node):
-    frame = Gtk.Frame() # 'Processing Caps'
+    frame = Gtk.Frame()
+    frame.set_label( 'Processing Caps')
     frame.set_border_width(4)
     str = 'benign=%i\nnumcoef=%i\n' % (node.proc_benign, node.proc_numcoef)
     frame.add(self.__new_text_view(text=str))
@@ -671,7 +688,8 @@ class NodeGui(Gtk.ScrolledWindow):
     self.node = node
     self.mytitle = node.name()
     if doframe:
-      mframe = Gtk.Frame() # self.mytitle
+      mframe = Gtk.Frame()
+      mframe.set_label( self.mytitle)
       mframe.set_border_width(4)
     else:
       mframe = Gtk.Table()
@@ -687,7 +705,7 @@ class NodeGui(Gtk.ScrolledWindow):
     hbox = Gtk.HBox(False, 0)
     hbox.pack_start(self.__build_node_caps(node), True, True, 0)
     hbox.pack_start(self.__build_connection_list(node), True, True, 0)
-    vbox.pack_start(hbox, False, False)
+    vbox.pack_start(hbox, False, False,0)
     if node.in_amp or node.out_amp:
       vbox.pack_start(self.__build_amps(node), False, False,0)
     if node.wtype_id == 'PIN':
@@ -722,7 +740,8 @@ class NodeGui(Gtk.ScrolledWindow):
     frame.add(self.__new_text_view(text=str))
     vbox.pack_start(frame, False, False,0)
 
-    frame = Gtk.Frame() # 'PCM Global Capabilities'
+    frame = Gtk.Frame()
+    frame.set_label( 'PCM Global Capabilities')
     frame.set_border_width(4)
     str = 'Rates:\t\t %s\n' % codec.pcm_rates[:6]
     if len(codec.pcm_rates) > 6:
@@ -737,7 +756,8 @@ class NodeGui(Gtk.ScrolledWindow):
   def __build_codec_amps(self, codec):
 
     def build_caps(title, caps):
-      frame = Gtk.Frame() # title
+      frame = Gtk.Frame()
+      frame.set_label( title)
       frame.set_border_width(4)
       if caps and caps.ofs != None:
         str = 'Offset:\t\t %d\n' % caps.ofs
@@ -762,7 +782,8 @@ class NodeGui(Gtk.ScrolledWindow):
     button.set_active(codec.gpio.test(id, idx))
 
   def __build_codec_gpio(self, codec):
-    frame = Gtk.Frame() # 'GPIO'
+    frame = Gtk.Frame()
+    frame.set_label( 'GPIO')
     frame.set_border_width(4)
     hbox = Gtk.HBox(False, 0)
     str =  'IO Count:    %d\n' % codec.gpio_max
@@ -775,7 +796,8 @@ class NodeGui(Gtk.ScrolledWindow):
     self.gpio_checkbuttons = []
     for id in GPIO_IDS:
       id1 = id == 'direction' and 'out-dir' or id
-      frame1 = Gtk.Frame() # id1
+      frame1 = Gtk.Frame()
+      frame.set_label( id1)
       frame1.set_border_width(4)
       vbox1 = Gtk.VBox(False, 0)
       self.gpio_checkbuttons.append([])
@@ -799,7 +821,8 @@ class NodeGui(Gtk.ScrolledWindow):
     self.codec = codec
     self.mytitle = codec.name
     if doframe:
-      mframe = Gtk.Frame() # self.mytitle
+      mframe = Gtk.Frame()
+      mframe.set_label( self.mytitle)
       mframe.set_border_width(4)
     else:
       mframe = Gtk.Table()
@@ -823,7 +846,8 @@ class NodeGui(Gtk.ScrolledWindow):
   def __build_card(self, card, doframe=False):
     self.mytitle = card.name
     if doframe:
-      mframe = Gtk.Frame() # self.mytitle
+      mframe = Gtk.Frame()
+      mframe.set_label( self.mytitle)
       mframe.set_border_width(4)
     else:
       mframe = Gtk.Table()
